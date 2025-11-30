@@ -68,6 +68,7 @@ in {
 
   services.openssh.enable = true;
   services.tailscale.enable = true;
+  # More settings can be found here: https://wiki.nixos.org/wiki/Immich
   services.immich = {
     enable = true;
     # use `host = "::";` for IPv6.
