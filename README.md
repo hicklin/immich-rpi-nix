@@ -1,12 +1,12 @@
 # immich-rpi-server
 > A NixOS based Immich server on Raspberry Pi
 
-This project aims to provide a cheap and simple way to set up and run an [Immich]() instance, empowering you to move away from BigTech without needing a computer degree. Having said that, you will be running your own server which will require understanding of some basic concepts. I attempt to provide sufficient documentation and explanations to help you on your way to regain sovereignty over your personal data.
+This project aims to provide a cheap and simple way to set up and run an [Immich](https://immich.app/) instance, empowering you to move away from BigTech without needing a computer degree. Having said that, you will be running your own server which will require understanding of some basic concepts. I attempt to provide sufficient documentation and explanations to help you on your way to regain sovereignty over your personal data.
 
 The specific setup descried protects against the following treats.
-- Remote internet access of server and data: Requires small overhead with [[#OS updates]].
+- Remote internet access of server and data: Requires small overhead [maintaining OS updates](#os-updates).
 - Access from local network: Requires setting strong passwords.
-- Physical access to external storage and RPi SD card: Requires [[#1. Encrypt external drive]].
+- Physical access to external storage and RPi SD card: Requires [encryption of external drive](#1-encrypt-external-drive).
 
 You may make modifications to some aspects of this setup if your treat model is different. For example, if physical access to the device is not a concern and you want the convenience of automatic setup on boot, you may choose to not encrypt the external drive.
 
@@ -74,7 +74,7 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
 > [!NOTE]
 > NixOS will not be running on an encrypted drive. This is to allow the possibility of remote bring up if the server reboots. However, all secrets and assets will be stored on the encrypted external drive.
 
-1. Download the latest image from the [releases page]().
+1. Download the latest image from the [releases page](https://github.com/hicklin/immich-rpi-server/releases).
 2. Flash on to an SD card using your favourite flashing tool. `rpi-imager`, `balena-etcher` or `dd`.
 3. Plug-in an Ethernet cable.
 4. Place the SD card in your RPi and power it.
@@ -83,11 +83,23 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
    2. Login to the RPi from your machine with `ssh admin@<IP address>` and password `testing`. 
    - Alternatively, you can connect a screen, keyboard and mouse and login to the RPi that way with the user `admin` and password `testing`.
 6. Once logged in on the RPi
-   1. Clone this repository: `git clone https://github.com/hicklin/immich-rpi-server.git`
-   2. Create a symbolic link (shortcut), for NixOS configuration: `sudo ln -s ~/immich-rpi-server/configuration.nix /etc/nixos/configuration.nix`
+   1. Clone this repository: 
+      ```
+      git clone https://github.com/hicklin/immich-rpi-server.git
+      ```
+   2. Create a symbolic link (shortcut), for NixOS configuration: 
+      ```
+      sudo ln -s ~/immich-rpi-server/configuration.nix /etc/nixos/configuration.nix
+      ```
    3. Change the password at the top of `immich-rpi-server/configuration.nix`.
-   4. Update channels: `sudo nix-channel --update`
-   5. Update the OS (updating the password): `sudo nixos-rebuild switch`
+   4. Update channels:
+      ```
+      sudo nix-channel --update
+      ```
+   5. Update the OS (updating the password):
+      ```
+      sudo nixos-rebuild switch
+      ```
 
 If you prefer to start from a vanilla NixOs OS image, follow [these instructions](docs/install-from-vanilla-image.md).
 
@@ -97,7 +109,7 @@ If you prefer to start from a vanilla NixOs OS image, follow [these instructions
 
 ## 3. Immich setup
 
-We will finish setting up immich, install the companion app on our phone and access the server from a web browser. For now, we will only be able to access immich from devices on the same network. We will enable remote access in [[#5. Remote access]].
+We will finish setting up immich, install the companion app on our phone and access the server from a web browser. For now, we will only be able to access immich from devices on the same network. We will enable remote access in [step 5](#5-remote-access).
 
 ### 3.1 Raspberry Pi
 
