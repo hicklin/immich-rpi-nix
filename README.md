@@ -105,18 +105,18 @@ Immich is already installed and configured on the RPi, however it requires a sec
 
 1. Decrypt and mount the external drive.
    ```
-   sudo install -d -m 755 -o ${USER} -g users /mnt/immich_data
+   sudo install -d -m 755 -o ${USER} -g users /mnt/immich_drive
    immich-server --immich-drive /dev/sda
    ```
 2. Copy the example secrets file to your encrypted drive.
    ```
-   install -d -m 755 -o ${USER} -g users /mnt/immich_data/secrets
-   cp ~/immich-rpi-server/immich-secrets.example /mnt/immich_data/secrets/immich-secrets
+   install -d -m 755 -o ${USER} -g users /mnt/immich_drive/secrets
+   cp ~/immich-rpi-server/immich-secrets.example /mnt/immich_drive/secrets/immich-secrets
    ```
-3. **Change the `DB_PASSWORD` value** in `/mnt/immich_data/secrets/immich-secrets`.
+3. **Change the `DB_PASSWORD` value** in `/mnt/immich_drive/secrets/immich-secrets`.
 4. Start immich
    ```
-   sudo install -d -m 755 -o immich -g users /mnt/immich_data/immich_data
+   sudo install -d -m 755 -o immich -g users /mnt/immich_drive/immich_data
    immich-server --start --no-decryption
    ```
 5. You can use `journalctl -u immich-server -f` to follow the logs from the immich service.
@@ -153,7 +153,7 @@ If you are embarking on this project, you are likely a secure conscious individu
 
 `rustic` is a fast and secure backup program. It encrypts and syncs our data to a remote location. We will use `restic` to achieve data with a similar security posture to Proton Drive on non-zero-thrust services like Backblaze, GCP, AWS, etc.
 
-We need to backup the following essential directories from `/mnt/immich_data/immich/library/`
+We need to backup the following essential directories from `/mnt/immich_drive/immich_data/library/`
 - `upload`: all original assets
 - `profile`: user profiles
 - `backups`: database backups
@@ -174,7 +174,7 @@ Follow the instructions by the could storage provider to setup a storage bucket 
 
 #### 2. Configure rustic
 
-Rustic requires a `.toml` configuration file with credentials to access your storage service and repository. In this context, repository refers to the stored encrypted data. You can find the latest configuration file example for backblaze and other services [here](https://github.com/rustic-rs/rustic/blob/main/config/services/b2.toml). Create a copy of the relevant example in `/mnt/immich_data/secrets` and update the values with information from your cloud storage provider.
+Rustic requires a `.toml` configuration file with credentials to access your storage service and repository. In this context, repository refers to the stored encrypted data. You can find the latest configuration file example for backblaze and other services [here](https://github.com/rustic-rs/rustic/blob/main/config/services/b2.toml). Create a copy of the relevant example in `/mnt/immich_drive/secrets` and update the values with information from your cloud storage provider.
 
 > [!CAUTION]  
 > The password in `[repository]` is what's used to encrypt/decrypt the backup data. **Do not loose this** otherwise you will not be able to access your backup data.
@@ -183,7 +183,7 @@ Rustic requires a `.toml` configuration file with credentials to access your sto
 > The contents of this config contains all the necessary information to access your private data. Hence, it's important for us to keep this secure. To do this, we will store this file in the encrypted storage drive in a `secrets` directory and link it in the required directory.
 > ```bash
 > mkdir -p .config/rustic
-> ln -s /mnt/immich_data/secrets/rustic.toml ~/.config/rustic
+> ln -s /mnt/immich_drive/secrets/rustic.toml ~/.config/rustic
 > ```
 
 #### 3. Initialise the repository - One time
@@ -245,7 +245,7 @@ This script will first ask you for you **user password** then ask you for the **
 > Your drive may be in a different location than `/dev/sda`. 
 
 > [!NOTE]
-> If you opted out of an encrypted immich drive, you can enable immich to start on boot by removing `systemd.user.units.immich.wantedBy = lib.mkForce [];` in `configuration.nix`. Remember to run `sudo nixos-rebuild switch` after commenting it out. You may still need to automate mounting the drive to `/mnt/immich_data`.
+> If you opted out of an encrypted immich drive, you can enable immich to start on boot by removing `systemd.user.units.immich.wantedBy = lib.mkForce [];` in `configuration.nix`. Remember to run `sudo nixos-rebuild switch` after commenting it out. You may still need to automate mounting the drive to `/mnt/immich_drive`.
 
 # Maintenance 
 

@@ -85,8 +85,8 @@ in {
     # use `host = "::";` for IPv6.
     host = "0.0.0.0";
     port = 2283;
-    mediaLocation = "/mnt/immich_data/immich";
-    secretsFile = "/mnt/immich_data/secrets/immich-secrets";
+    mediaLocation = "/mnt/immich_drive/immich_data";
+    secretsFile = "/mnt/immich_drive/secrets/immich-secrets";
   };
 
   users.users.immich = {

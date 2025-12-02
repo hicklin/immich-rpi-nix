@@ -84,8 +84,8 @@ fi
 if [ -n "$IMMICH_DRIVE" ]; then
     printf "Decrypting immich drive at %s\n" "$IMMICH_DRIVE"
     sudo cryptsetup open "$IMMICH_DRIVE" immich_drive
-    printf "Mounting immich drive to /mnt/immich_data\n"
-    sudo mount /dev/mapper/immich_drive /mnt/immich_data
+    printf "Mounting immich drive to /mnt/immich_drive\n"
+    sudo mount /dev/mapper/immich_drive /mnt/immich_drive
 else
     # Print warning if --no-decryption is not set
     if [ "$NO_DECRYPTION" = false ]; then
