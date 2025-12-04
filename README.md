@@ -87,13 +87,12 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
       ```
       git clone https://github.com/hicklin/immich-rpi-server.git
       ```
-   2. Edit `immich-rpi-server/configuration.nix`
-      - Change the password at the top of the config.
-      - Comment out `./size_reduction.nix` in imports.
-   3. Create a symbolic link (shortcut), for NixOS configuration:
+   2. Create a symbolic link (shortcut), for NixOS configuration:
       ```
       sudo ln -s ~/immich-rpi-server/configuration.nix /etc/nixos/configuration.nix
       ```
+   3. Change the RPi login password by changing the `hashedPassword` in `immich-rpi-server/configuration.nix`
+      - You can generate a hash with ` mkpasswd -m sha-512 <your secure password>`. Note the space at the start. This omits this command from being logged in history and leaking your password.
    4. Update channels:
       ```
       sudo nix-channel --update

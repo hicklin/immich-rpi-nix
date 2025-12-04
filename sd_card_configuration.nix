@@ -2,9 +2,7 @@
 
 let
   user = "admin";
-  # Password to login and manage the Raspberry Pi. Default password: "testing".
-  # Generate a password hash using ` mkpasswd -m sha-512 <your secure password>`.
-  hashedPassword = "$6$OMJuNPuGfIXsY28y$NhNhm3PtDmJx80NcESlZAn4IH71BEkmqvaeRGWt7WL3UgmursqN.WJsgAHmTc5lC6NOv4kZQeapdnyeZLXgmz.";
+  password = "testing";
   hostname = "immich";
   immich-server = pkgs.writeShellScriptBin "immich-server" (builtins.readFile ./scripts/immich-server.sh);
   immich-backup = pkgs.writeShellScriptBin "immich-backup" (builtins.readFile ./scripts/immich-backup.sh);
@@ -52,19 +50,10 @@ in {
 
   networking = {
     hostName = hostname;
-    firewall = {
-      enable = true;
-      allowedTCPPorts = [ 2283 ];
-      # required for Tailscale
-      checkReversePath = "loose";
-      trustedInterfaces = [ "tailscale0" ];
-    };
   };
 
   environment.systemPackages = with pkgs; [ 
     git
-    cryptsetup
-    rustic
     vim # basic file editing
     bat # cat with wings
     htop # interactive process viewer
@@ -73,58 +62,29 @@ in {
     immich-backup # Helper script to backup immich data
   ];
 
-  environment.variables = {
-    # Set to "true" to include non-essential data in backup and speed up the disaster recovery process
-    IMMICH_BACKUP_ALL = "false";
-  };
-
   services.openssh.enable = true;
-  services.tailscale.enable = true;
-
-  # More settings can be found here: https://wiki.nixos.org/wiki/Immich
-  services.immich = {
-    enable = true;
-    # use `host = "::";` for IPv6.
-    host = "0.0.0.0";
-    port = 2283;
-    mediaLocation = "/mnt/immich_drive/immich_data";
-    secretsFile = "/mnt/immich_drive/secrets/immich-secrets";
-  };
-
-  users.users.immich = {
-    # Add immich user to users group, allowing immich to write to our external drive.
-    extraGroups = [ "users" ];
-  };
-
-  # We do not want immich to start on boot since we need to first decrypt the drive.
-  # Remove this line if your immich drive does not require manual decryption.
-  systemd.services.immich-server.wantedBy = lib.mkForce [];
-
-  systemd.timers."immich-backup" = {
-    wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnBootSec = "15m";
-        OnUnitActiveSec = "1d";
-        Unit = "immich-backup.service";
-      };
-  };
-
-  systemd.services."immich-backup" = {
-    path = [ pkgs.rustic ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${immich-backup}/bin/immich-backup";
-    };
-    description = "Immich backup service";
-  };
 
   users = {
     mutableUsers = false;
     users."${user}" = {
       isNormalUser = true;
-      hashedPassword = hashedPassword;
+      password = password;
       extraGroups = [ "wheel" ];
     };
+  };
+
+  # Size reduction, necessary for keeping release image small
+  documentation.enable = false;
+  documentation.nixos.enable = false;
+  documentation.man.enable = false;
+  documentation.info.enable = false;
+  documentation.doc.enable = false;
+
+  services.samba.enable = false;
+
+  sdImage = {
+    compressImage = true;
+    expandOnBoot = true;
   };
 
   hardware.enableRedistributableFirmware = true;

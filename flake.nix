@@ -12,7 +12,7 @@
     packages.x86_64-linux.rpi-image = nixos-generators.nixosGenerate {
       system = "aarch64-linux";
       modules = [
-        ./configuration.nix
+        ./sd_card_configuration.nix
       ];
       format = "sd-aarch64";
     };
