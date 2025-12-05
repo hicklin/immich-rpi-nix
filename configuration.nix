@@ -74,8 +74,8 @@ in {
   ];
 
   environment.variables = {
-    # Set to "true" to include non-essential data in backup and speed up the disaster recovery process
-    IMMICH_BACKUP_ALL = "false";
+    # Set to "true" to only backup essential data.
+    IMMICH_BACKUP_ESSENTIAL_ONLY = "false";
   };
 
   services.openssh.enable = true;
@@ -91,6 +91,11 @@ in {
     secretsFile = "/mnt/immich_drive/secrets/immich-secrets";
   };
 
+  # Set the database location to the encrypted drive
+  services.postgresql = {
+    dataDir = "/mnt/immich_drive/postgres";
+  };
+
   users.users.immich = {
     # Add immich user to users group, allowing immich to write to our external drive.
     extraGroups = [ "users" ];
@@ -103,7 +108,7 @@ in {
   systemd.timers."immich-backup" = {
     wantedBy = [ "timers.target" ];
       timerConfig = {
-        OnBootSec = "15m";
+        OnBootSec = "60m";
         OnUnitActiveSec = "1d";
         Unit = "immich-backup.service";
       };
