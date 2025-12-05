@@ -25,6 +25,34 @@ You may make modifications to some aspects of this setup if your treat model is 
 > [!NOTE]
 > The following instructions assume you are working on a Linux based OS. If you want to follow along on a Linux based OS, you can run one from a live USB without installing it on your machine.
 
+# Table of contents
+
+- [Requirements](#requirements)
+- [The big picture](#the-big-picture)
+  - [Glossary](#glossary)
+  - [Costs](#costs)
+- [Setup steps](#setup-steps)
+  1. [Encrypt external drive](#1-encrypt-external-drive)
+  2. [Raspberry Pi setup](#2-raspberry-pi-setup)
+  3. [Immich setup](#3-immich-setup)
+       1. [Raspberry Pi](#31-raspberry-pi)
+       2. [Phone app](#32-phone-app)
+       3. [Web app](#33-web-app)
+       4. [Immich initialisation](#34-immich-initialisation)
+  4. [Configure backups](#4-configure-backups)
+       1. [Setup a storage provider](#1-setup-a-storage-provider)
+       2. [Configure rustic](#2-configure-rustic)
+       3. [Initialise the repository - One time](#3-initialise-the-repository---one-time)
+       4. [Manual backup](#4-manual-backup)
+       5. [Schedule backups](#5-schedule-backups)
+  5. [Remote access](#5-remote-access)
+- [Upload Photos](#upload-photos)
+- [On reboot](#on-reboot)
+- [Maintenance](#maintenance)
+  - [OS updates](#os-updates)
+  - [Check backup logs](#check-backup-logs)
+- [Disaster recovery](#disaster-recovery)
+
 # Requirements
 
 - A Raspberry Pi 4 (min 4 GB RAM) + micro SD card. Not tested on RPi 5.
@@ -61,7 +89,17 @@ The diagram below describes the architecture of our server and how different par
 | `rclone`/`rustic` | Free            |
 | `tailscale`       | Free            |
 
-# Setup steps
+# Setup
+
+The following steps setup a RPi immich server **with no media assets**. Following this, you may [migrate photos from your previous app](#migrating-photos).
+
+> [!IMPORTANT]
+> If you have a large amount of assets to migrate, the RPi may have a hard time processing the migrated assets.
+> Immich runs CPU intensive encoding and AI algorithms on your assets. This may cause your RPi to overheat and power down.
+> One solution to this is to install a heat sink.
+> 
+> A better solution is to setup a local immich instance on a more powerful machine to import and process photos before setting up the RPi. You can follow the [migration processing off RPi](docs/migration-processing-off-rpi.md) setup steps for this solution.
+
 ## 1. Encrypt external drive
 
 We encrypt the external drive to stop anyone gaining physical access to our drive from being able to see all our media assets. If this is not a concern, you can skip this step. I would encourage you to listen to [Darknet Dairies episode #163: Ola](https://open.spotify.com/episode/7K7NN1U7J2M6DOlDvKnbMq?si=dfbd5c4a83ec4830) before choosing to do so.
@@ -83,6 +121,8 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
 > NixOS will not be running on an encrypted drive. This is to allow the possibility of remote bring up if the server reboots. However, all secrets and assets will be stored on the encrypted external drive.
 
 1. Download the latest image from the [releases page](https://github.com/hicklin/immich-rpi-server/releases).
+   - If you want to build the image locally, follow [these instructions](docs/build-image-locally.md).
+   - If you prefer to start from a vanilla NixOs image, follow [these instructions](docs/install-from-vanilla-image.md).
 2. Flash on to an SD card using your favourite flashing tool. `rpi-imager`, `balena-etcher` or `dd`.
 3. Plug-in an Ethernet cable.
 4. Place the SD card in your RPi and power it.
@@ -90,6 +130,7 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
    1. Identify the IP of your RPi with `sudo arp-scan -l`.
    2. Login to the RPi from your machine with `ssh admin@<IP address>` and password `testing`. 
    - Alternatively, you can connect a screen, keyboard and mouse and login to the RPi that way with the user `admin` and password `testing`.
+   - The first time you login, you will be prompted to configure zsh. You can use option `0`.
 6. Once logged in on the RPi
    1. Clone this repository: 
       ```bash
@@ -101,6 +142,9 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
       ```
    3. Change the RPi login password by changing the `hashedPassword` in `immich-rpi-server/configuration.nix`
       - You can generate a hash with ` mkpasswd -m sha-512 <your secure password>`. Note the space at the start. This omits this command from being logged in history and leaking your password.
+      > [!CAUTION]
+      > This password is necessary to manage the RPi. If this is breached, attackers can access all of the raw media assets.
+      > Set a secure password and for better security, setup [SSH keys and disable password authentication](https://wiki.nixos.org/wiki/SSH_public_key_authentication).
    4. Update channels:
       ```bash
       sudo nix-channel --update
@@ -110,11 +154,6 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
       sudo nixos-rebuild switch
       ```
 
-If you prefer to start from a vanilla NixOs OS image, follow [these instructions](docs/install-from-vanilla-image.md).
-
-> [!CAUTION]
-> The password set in step 6.3 is necessary to manage the RPi. If this is breached, attackers can access all of the raw media assets.
-> Set a secure password and for better security, setup [SSH keys and disable password authentication](https://wiki.nixos.org/wiki/SSH_public_key_authentication).
 
 ## 3. Immich setup
 
@@ -142,26 +181,29 @@ Immich is already installed and configured on the RPi, however it requires a sec
    cp ~/immich-rpi-server/immich-secrets.example /mnt/immich_drive/secrets/immich-secrets
    ```
 6. **Change the `DB_PASSWORD` value** in `/mnt/immich_drive/secrets/immich-secrets`.
+   > [!CAUTION]
+   > Securely store the `DB_PASSWORD`. This is necessary to recover the database which is essential to make sense of our backup.
 7. Create the directory for immich data in the encrypted drive with the correct permissions.
    ```bash
    sudo install -d -m 755 -o immich -g users /mnt/immich_drive/immich_data
    ```
-8. Start immich
+8. Create the directory for immich postgres database in the encrypted drive with the correct permissions.
    ```bash
-   immich-server --start --no-decryption
+   sudo install -d -m 750 -o postgres -g users /mnt/immich_drive/postgres
    ```
-9. You can use `journalctl -u immich-server -f` to follow the logs from the immich service.
+9.  Start immich
+      ```bash
+      immich-server --start --no-decryption
+      ```
+10. You can use `journalctl -u immich-server -f` to follow the logs from the immich service.
 
-> [!CAUTION]
-> Securely store the `DB_PASSWORD`. This is necessary to recover the database which is essential to make sense of our backup.
-
-### 3.2 Phone
+### 3.2 Phone app
 
 1. Download the immich app from https://immich.app/.
 2. Set the server URL to `http://<RPi IP>:2283`. You can get the RPi IP with `sudo arp-scan -l` or from the RPi with `ip addr show`.
 3. For more information about using the app, consult the [immich documentation](https://docs.immich.app/overview/quick-start#try-the-mobile-app).
 
-### 3.3 Access the web app
+### 3.3 Web app
 
 In your web browser type `http://<RPi IP>:2283`. You can get the RPi IP with `sudo arp-scan -l` or from the RPi with `ip addr show`.
 
@@ -185,7 +227,7 @@ If you are embarking on this project, you are likely a secure conscious individu
 `rustic` is a fast and secure backup program. It encrypts and syncs our data to a remote location. We will use `restic` to achieve data with a similar security posture to Proton Drive on non-zero-thrust services like Backblaze, GCP, AWS, etc.
 
 We need to backup the following essential directories from `/mnt/immich_drive/immich_data/`
-- `library`: Not usually used
+- `library`: Used if storage templates are enabled
 - `upload`: all original assets
 - `profile`: user profiles
 - `backups`: database backups
@@ -193,10 +235,7 @@ We need to backup the following essential directories from `/mnt/immich_drive/im
 > [!TIP]
 > You can configure the frequency and retention of database backups. For more information consult the [immich docs](https://docs.immich.app/administration/backup-and-restore#automatic-database-dumps).
 
-Just uploading these directories will require immich to regenerate thumbs and encoded-videos during recovery. You can choose to backup these extra directories, however, this can consume significantly more memory, so consider how often you might have to perform a disaster recovery vs the cost of storing this data.
-
-> [!TIP]
-> If you wish to backup non-essential files as well, set the `IMMICH_BACKUP_ALL` environment variable in `configuration.nix` to `"true"`. Remember to follow this up with `sudo nixos-rebuild switch`.
+Just uploading these directories will require immich to regenerate thumbs and encoded-videos during recovery. By default, both essential and generated data is backed up. This ensures a seedy and smooth recovery. If you wish to only backup essential files, set the `IMMICH_BACKUP_ESSENTIAL_ONLY` environment variable in `configuration.nix` to `"true"`. Remember to follow this up with `sudo nixos-rebuild switch`.
 
 #### 1. Setup a storage provider
 
@@ -238,11 +277,16 @@ Our nix configuration provides a service for backing up our data.
 sudo systemctl start immich-backup
 ```
 
-This service will run once and will encrypt and backup our data.
+This service will run once and will encrypt and backup our data. You can check the logs for this service with:
+
+```bash
+journalctl -xeu immich-backup.service
+```
+
 
 #### 5. Schedule backups
 
-Our nix configuration schedules backups to start 15 min after boot and again every day. If you wish to modify this, you can amend `systemd.timers."immich-backup"` in `configuration.nix`.
+Our nix configuration schedules backups to start 60 minutes after boot and again every day. If you wish to modify this, you can amend `systemd.timers."immich-backup"` in `configuration.nix`.
 
 ## 5. Remote access
 
@@ -266,6 +310,21 @@ The [tailscale dashboard](https://login.tailscale.com/admin/machines) shows all 
 
 > [!TIP]
 > The immich app can be set up to use the local IP when you are on the home WiFi and switch to the tailscale IP otherwise. To do this go to `user icon (top right) > Settings > Networking` and enable `Automatic URL switching`.
+
+# Migrating Photos
+
+If you are migrating from other photo management services, have a look at [immich-go](https://github.com/simulot/immich-go/tree/main) for automation.
+
+> [!CAUTION]
+> This tool is still an early version. Make sure to confirm that correct and full migration is achieved.
+
+> [!IMPORTANT]
+> If you have a large amount of assets to migrate, the RPi may have a hard time processing the migrated assets.
+> Immich runs CPU intensive encoding and AI algorithms on your assets. This may cause your RPi to overheat and power down.
+> One solution to this is to install a heat sink.
+> 
+> A better solution is to setup a local immich instance on a more powerful machine to import and process photos before setting up the RPi. You can follow the [migration processing off RPi](docs/migration-processing-off-rpi.md) setup steps for this solution.
+
 
 # On reboot
 
@@ -293,6 +352,8 @@ Run the following commands to update the OS and its applications
 
 ```bash
 sudo --nix-channel --update
+```
+```bash
 sudo nixos-rebuild switch
 ```
 
@@ -309,4 +370,48 @@ journalctl -xeu immich-backup.service
 
 # Disaster recovery
 
-Here we will talk about setting up the device with backed up data.
+This section covers recovering your immich setup from backups. These instructions cover two distinct situations.
+- **Complete recovery**: Setting up the external drive, RPi and getting data backed-up on cloud storage.
+- **Recovery with drive data**: The external drive data is intact and can be used as is. Setting up of RPi.
+
+## Complete recovery
+
+1. Encrypt the new drive following [setup step 1](#1-encrypt-external-drive).
+2. Setup the RPi following [setup step 2](#2-raspberry-pi-setup).
+3. Setup immich on RPi following [setup step 3.1](#31-raspberry-pi), up to and including step 8.
+4. Stop the immich-backup timer from triggering.
+   ```bash
+   sudo systemctl stop immich-backup.timer
+   ```
+5. Configure `rustic` following [setup step 4](#4-configure-backups), up to and including step 2.
+6. Recover the data from the cloud
+   ```
+   rustic copy --target /mnt/immich_drive/immich_data
+   ```
+7. Restore the database from the latest backup in `/immich_data/backups`
+   1. todo...
+8. Start immich
+   ```bash
+   immich-server --start --no-decryption
+   ```
+9.  Access the server and confirm that the backup is complete.
+    > [!NOTE]
+    > If you only backed up essential files, your RPi might need some processing time.
+10. Restart the immich-backup timer
+    ```
+    sudo systemctl start immich-backup.timer
+    ```
+11. Setup remote access following [setup step 5](#5-remote-access).
+
+## Recover with drive data
+
+These instruction are for when the external drive already contains all the immich data for a previous server instance.
+
+1. Setup the RPi following [setup step 2](#2-raspberry-pi-setup).
+2. Setup immich on RPi following [setup step 3.1](#31-raspberry-pi) up to and including step 3.
+3. Start immich
+   ```bash
+   immich-server --start --no-decryption
+   ```
+4. Access the server and confirm that all the photos are there.
+5. Setup remote access following [setup step 5](#5-remote-access).
