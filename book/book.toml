@@ -1,0 +1,5 @@
+[book]
+title = "Immich RPi Server"
+authors = ["William Hicklin"]
+description = "Build and run a self-hosted photos solution on a Raspberry Pi"
+language = "en"
