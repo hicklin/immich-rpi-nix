@@ -64,6 +64,19 @@ in {
 
   services.openssh.enable = true;
 
+  # Configures the avahi daemon enabling mDNS lookup of the RPi with `immich.local`.
+  services.avahi = {
+    enable = true;
+    hostName = "immich2";
+    publish = {
+      enable = true;
+      userServices = true;
+      addresses = true;
+    };
+    nssmdns = true; # Enables mDNS resolution for .local domains
+    openFirewall = true; # Opens UDP port 5353 for mDNS
+  };
+
   users = {
     mutableUsers = false;
     users."${user}" = {
