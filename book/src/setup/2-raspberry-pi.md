@@ -5,7 +5,7 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
 > [!NOTE]
 > NixOS will not be running on an encrypted drive. This is to allow the possibility of remote bring up if the server reboots. However, all secrets and assets will be stored on the encrypted external drive.
 
-1. Download the latest image from the [releases page](https://github.com/hicklin/immich-rpi-server/releases).
+1. Download the latest image from the [releases page](https://github.com/hicklin/immich-rpi-nix/releases).
    - You may choose to [build the RPi image locally](../alternative-setups/2-build-image-locally.md) or
    - Start from the [latest vanilla NixOS image](../alternative-setups/3-install-from-vanilla-image.md).
 2. Flash the RPi image on to an SD card using your favourite flashing tool; `rpi-imager`, `balena-etcher` or `dd`:
@@ -22,13 +22,13 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
 6. Once logged in the RPi
    1. Clone this repository: 
       ```bash
-      git clone https://github.com/hicklin/immich-rpi-server.git
+      git clone https://github.com/hicklin/immich-rpi-nix.git
       ```
    2. Create a symbolic link (shortcut), for NixOS configuration:
       ```bash
-      sudo ln -s ~/immich-rpi-server/configuration.nix /etc/nixos/configuration.nix
+      sudo ln -s ~/immich-rpi-nix/configuration.nix /etc/nixos/configuration.nix
       ```
-   3. Change the RPi login password by changing the `hashedPassword` in `immich-rpi-server/configuration.nix`
+   3. Change the RPi login password by changing the `hashedPassword` in `immich-rpi-nix/configuration.nix`
       - You can generate a hash with ` mkpasswd -m sha-512 <your secure password>`. Note the space at the start. This omits this command from being logged in history and leaking your password.
       > [!CAUTION]
       > This password is necessary to manage the RPi. If this is breached, attackers can access all of the raw media assets.

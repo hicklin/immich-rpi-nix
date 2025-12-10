@@ -21,7 +21,7 @@ Immich is already installed and configured on the RPi, however it requires a sec
    ```
 5. Copy the example secrets file to your encrypted drive.
    ```bash
-   cp ~/immich-rpi-server/immich-secrets.example /mnt/immich_drive/secrets/immich-secrets
+   cp ~/immich-rpi-nix/immich-secrets.example /mnt/immich_drive/secrets/immich-secrets
    ```
 6. **Change the `DB_PASSWORD` value** in `/mnt/immich_drive/secrets/immich-secrets`.
    > [!CAUTION]

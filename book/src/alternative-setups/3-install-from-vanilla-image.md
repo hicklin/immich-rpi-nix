@@ -32,13 +32,13 @@ These steps are simplified from [this](https://nix.dev/tutorials/nixos/installin
 	   ```
 	3. Clone this repository:
 	   ```
-	   git clone https://github.com/hicklin/immich-rpi-server.git
+	   git clone https://github.com/hicklin/immich-rpi-nix.git
 	   ```
 	4. Create a symbolic link (shortcut), for our NixOS configuration:
 	   ```
-	   sudo ln -s ~/immich-rpi-server/configuration.nix /etc/nixos/configuration.nix
+	   sudo ln -s ~/immich-rpi-nix/configuration.nix /etc/nixos/configuration.nix
 	   ```
-	5. Change the RPi login password by changing the `hashedPassword` in `immich-rpi-server/configuration.nix`
+	5. Change the RPi login password by changing the `hashedPassword` in `immich-rpi-nix/configuration.nix`
       - You can generate a hash with ` mkpasswd -m sha-512 <your secure password>`. Note the space at the start. This omits this command from being logged in history and leaking your password.
       > [!CAUTION]
       > This password is necessary to manage the RPi. If this is breached, attackers can access all of the raw media assets.
