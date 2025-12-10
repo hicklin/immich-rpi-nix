@@ -109,6 +109,7 @@ in {
   systemd.services.immich-server.wantedBy = lib.mkForce [];
   systemd.services.immich-machine-learning.wantedBy = lib.mkForce [];
 
+  # Creates the immich backup timer
   systemd.timers."immich-backup" = {
     wantedBy = [ "timers.target" ];
       timerConfig = {
@@ -118,6 +119,7 @@ in {
       };
   };
 
+  # Creates the immich backup service
   systemd.services."immich-backup" = {
     path = [ pkgs.rustic ];
     serviceConfig = {
@@ -126,6 +128,19 @@ in {
       TimeoutStopSec = 60;
     };
     description = "Immich backup service";
+  };
+
+  # Configures the avahi daemon enabling mDNS lookup of the RPi with `immich.local`.
+  services.avahi = {
+    enable = true;
+    hostName = "immich";
+    publish = {
+      enable = true;
+      userServices = true;
+      addresses = true;
+    };
+    nssmdns = true; # Enables mDNS resolution for .local domains
+    openFirewall = true; # Opens UDP port 5353 for mDNS
   };
 
   users = {
