@@ -20,24 +20,26 @@ This project uses the declarative Linux operating system (OS), NixOS. This allow
    > [!NOTE]
    > Alternatively, you can connect a screen, keyboard and mouse and login to the RPi that way with the user `admin` and password `testing`.
 6. Once logged in the RPi
-   1. Clone this repository: 
+   1. Change the default password:
+      ```bash
+      sudo passwd admin
+      ```
+      > [!CAUTION]
+      > This password is necessary to manage the RPi. If this is breached, attackers can access all of the raw media assets.
+      > Set a secure password and for better security, setup [SSH keys and disable password authentication](../optional-extras/1-harden-rpi-with-ssh-keys.md).
+   2. Clone this repository: 
       ```bash
       git clone https://github.com/hicklin/immich-rpi-nix.git
       ```
-   2. Create a symbolic link (shortcut), for NixOS configuration:
+   3. Create a symbolic link (shortcut), for NixOS configuration:
       ```bash
       sudo ln -s ~/immich-rpi-nix/configuration.nix /etc/nixos/configuration.nix
       ```
-   3. Change the RPi login password by changing the `hashedPassword` in `immich-rpi-nix/configuration.nix`
-      - You can generate a hash with ` mkpasswd -m sha-512 <your secure password>`. Note the space at the start. This omits this command from being logged in history and leaking your password.
-      > [!CAUTION]
-      > This password is necessary to manage the RPi. If this is breached, attackers can access all of the raw media assets.
-      > Set a secure password and for better security, setup [SSH keys and disable password authentication](https://wiki.nixos.org/wiki/SSH_public_key_authentication).
    4. Update channels:
       ```bash
       sudo nix-channel --update
       ```
-   5. Update the OS (updating the password):
+   5. Update the OS:
       ```bash
       sudo nixos-rebuild switch
       ```

@@ -19,3 +19,5 @@
   - [Build RPi Image Locally](./alternative-setups/2-build-image-locally.md)
   - [Use Latest Vanilla NixOS Image](./alternative-setups/3-install-from-vanilla-image.md)
   - [Proton Drive Backup](./alternative-setups/4-proton-drive-backups.md)
+- [Optional Extras](./optional-extras/0-optional-extras.md)
+  - [Harden RPi with SSH keys](./optional-extras/1-harden-rpi-with-ssh-keys.md)

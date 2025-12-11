@@ -2,7 +2,7 @@
 
 let
   user = "admin";
-  password = "testing";
+  initialPassword = "testing";
   hostname = "immich";
   immich-server = pkgs.writeShellScriptBin "immich-server" (builtins.readFile ./scripts/immich-server.sh);
   immich-backup = pkgs.writeShellScriptBin "immich-backup" (builtins.readFile ./scripts/immich-backup.sh);
@@ -67,21 +67,21 @@ in {
   # Configures the avahi daemon enabling mDNS lookup of the RPi with `immich.local`.
   services.avahi = {
     enable = true;
-    hostName = "immich2";
+    hostName = hostname;
     publish = {
       enable = true;
       userServices = true;
       addresses = true;
     };
-    nssmdns = true; # Enables mDNS resolution for .local domains
+    nssmdns4 = true; # Enables mDNS resolution for .local domains
     openFirewall = true; # Opens UDP port 5353 for mDNS
   };
 
   users = {
-    mutableUsers = false;
+    mutableUsers = true;
     users."${user}" = {
       isNormalUser = true;
-      password = password;
+      initialPassword = initialPassword;
       extraGroups = [ "wheel" ];
     };
   };

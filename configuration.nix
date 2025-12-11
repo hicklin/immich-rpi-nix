@@ -2,9 +2,10 @@
 
 let
   user = "admin";
-  # Password to login and manage the Raspberry Pi. Default password: "testing".
-  # Generate a password hash using ` mkpasswd -m sha-512 <your secure password>`.
-  hashedPassword = "$6$OMJuNPuGfIXsY28y$NhNhm3PtDmJx80NcESlZAn4IH71BEkmqvaeRGWt7WL3UgmursqN.WJsgAHmTc5lC6NOv4kZQeapdnyeZLXgmz.";
+  # The initial password to login and manage the Raspberry Pi.
+  # Change this with `sudo passwd <user>` once logged it.
+  # Subsequent `nixos-rebuild switch` will not change the password back to "testing".
+  initialPassword = "testing";
   hostname = "immich";
   immich-server = pkgs.writeShellScriptBin "immich-server" (builtins.readFile ./scripts/immich-server.sh);
   immich-backup = pkgs.writeShellScriptBin "immich-backup" (builtins.readFile ./scripts/immich-backup.sh);
@@ -79,7 +80,16 @@ in {
     IMMICH_BACKUP_ESSENTIAL_ONLY = "false";
   };
 
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    # Uncomment these `settings` lines to require public key authentication only.
+    # Read [Harden RPi with SSH keys](https://hicklin.github.io/immich-rpi-nix/optional-extras/1-harden-rpi-with-ssh-keys.html)
+    # Disables remote password authentication.
+    # settings.PasswordAuthentication = false;
+    # Disables keyboard-interactive authentication.
+    # settings.KbdInteractiveAuthentication = false;
+  };
+
   services.tailscale.enable = true;
 
   # More settings can be found here: https://wiki.nixos.org/wiki/Immich
@@ -133,21 +143,21 @@ in {
   # Configures the avahi daemon enabling mDNS lookup of the RPi with `immich.local`.
   services.avahi = {
     enable = true;
-    hostName = "immich";
+    hostName = hostname;
     publish = {
       enable = true;
       userServices = true;
       addresses = true;
     };
-    nssmdns = true; # Enables mDNS resolution for .local domains
+    nssmdns4 = true; # Enables mDNS resolution for .local domains
     openFirewall = true; # Opens UDP port 5353 for mDNS
   };
 
   users = {
-    mutableUsers = false;
+    mutableUsers = true;
     users."${user}" = {
       isNormalUser = true;
-      hashedPassword = hashedPassword;
+      initialPassword = initialPassword;
       extraGroups = [ "wheel" ];
     };
   };

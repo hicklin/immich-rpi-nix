@@ -23,7 +23,7 @@ This projects comes with a [book](https://hicklin.github.io/immich-rpi-nix/) to 
 
 ## Contributing
 
-Contributions and suggestions are welcome. Please raise detailed pull requests and issues.
+Contributions and suggestions are welcome! If you'd like to contribute, please open a detailed pull request describing your changes and the problem they solve. For bug reports, feature requests, or questions, please open an issue with relevant context, steps to reproduce, and your system configuration.
 
 ## License
 
