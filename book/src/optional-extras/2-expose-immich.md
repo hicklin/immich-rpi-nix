@@ -27,7 +27,7 @@ To enable these features securely, we will hide immich behind caddy, a reverse p
 
 ### 1. Initial prep
 
-1. Export the certificate directory for use the the following commands.
+1. Export the certificate directory for use with the following commands.
    ```bash
    export CERT_DIR="/var/lib/certs"
    ```
@@ -65,7 +65,7 @@ Create a certificate authority on the immich server that will generate mTLS cert
      -subj "/CN=Immich Client CA/O=Personal/C=US"
    ```
 
-### 4. Enabled nix configuration
+### 4. Enable nix configuration
 
 The reverse proxy, caddy, it's filters and fail2ban described above are all preconfigured in the `expose-immich.nix` configuration file.
 
@@ -111,7 +111,7 @@ This will generate
 
 #### Immich app
 
-1. Transfer the generate `.p12` file to your phone.
+1. Transfer the generated `.p12` file to your phone.
 2. Sign-out of the app.
 3. Enter the new https tailscale URL. DO NOT tap on login.
 4. Add your mTLS cert in setting (gear icon) > Advanced:
@@ -131,13 +131,12 @@ The following are some helpful commands to monitor the system.
 
 ### Caddy
 
+- Caddy service logs: `journalctl -eu caddy -f`
 - Caddy access logs can be found at `/var/log/caddy/`.
-- For caddy service logs use `journalctl -eu caddy -f`
-
 
 ### Fail2ban
 
-- For fail2ban service logs use `journalctl -eu fail2ban -f`
+- Fail2ban service logs: `journalctl -eu fail2ban -f`
 - For general fail2ban status summary: `sudo fail2ban-client status`
 - For jail status summary: `sudo fail2ban-client status <jail>`. `<jail>` can be one of `not-found`, `unauthorised` or `forbidden`.
 - To unban an ip `sudo fail2ban-client set <jail> unbanip <ip>`

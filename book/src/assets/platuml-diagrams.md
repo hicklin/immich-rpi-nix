@@ -9,7 +9,7 @@ rectangle "home network" {
 		collections "immich\ndata" as data
     folder "secrets"
 	}
-	
+
 	node RPi {
 		agent immich
 	}
@@ -56,26 +56,26 @@ cloud "Internet" {
 ' Home Network
 package "Home Network" {
   node "Raspberry Pi Server" as RPi {
-    
+
     component "Caddy Reverse Proxy" as Caddy {
       portin " :8443 " as Port8443 #skyblue
-      
+
       frame "Request Processing" #WhiteSmoke {
         storage "mTLS cert\nvalid?" as q1 #gold
         storage "Share API\npath?" as q2 #gold
-        
+
         interface "Full Access" as allow #lightgreen
         interface "Share Only" as shareonly #orange
         interface "Block\n**403**" as block #lightcoral
       }
-      
+
       portout " Proxy " as ProxyOut
     }
-    
+
     component "Immich" as Immich #lightblue {
       portin " :2283 " as Port2283 #skyblue
     }
-    
+
     component "fail2ban" as Fail2ban #lavender
   }
 }
