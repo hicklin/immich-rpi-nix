@@ -16,7 +16,7 @@ in {
     ./lan-immich.nix
     # ./expose-immich.nix
   ];
-  
+
   boot = {
     # This linux_rpi4 kernel dose not work for UART. See issue https://github.com/NixOS/nixpkgs/issues/465278
     # Switching to vanilla kernel.
@@ -50,7 +50,7 @@ in {
     "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
     "nixos-config=/etc/nixos/configuration.nix"
   ];
-  
+
   nix.settings.experimental-features = [ "nix-command" ];
 
   networking = {
@@ -58,7 +58,7 @@ in {
     firewall.enable = true;
   };
 
-  environment.systemPackages = with pkgs; [ 
+  environment.systemPackages = with pkgs; [
     git
     cryptsetup
     rustic
