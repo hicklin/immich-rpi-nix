@@ -13,8 +13,8 @@ in {
 
   imports = [
     ./zsh.nix
-    ./lan-immich.nix
-    # ./expose-immich.nix
+    # ./lan-immich.nix
+    ./expose-immich.nix
   ];
 
   boot = {
@@ -64,6 +64,7 @@ in {
     rustic
     jq
     openssl
+    wakeonlan
     vim # basic file editing
     tmux # terminal multiplexer
     bat # cat with wings
@@ -83,9 +84,9 @@ in {
     # Uncomment these `settings` lines to require public key authentication only.
     # Read [Harden RPi with SSH keys](https://hicklin.github.io/immich-rpi-nix/optional-extras/1-harden-rpi-with-ssh-keys.html)
     # Disables remote password authentication.
-    # settings.PasswordAuthentication = false;
+    settings.PasswordAuthentication = false;
     # Disables keyboard-interactive authentication.
-    # settings.KbdInteractiveAuthentication = false;
+    settings.KbdInteractiveAuthentication = false;
   };
 
   services.tailscale.enable = true;

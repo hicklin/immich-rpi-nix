@@ -32,6 +32,7 @@
 
         # Using the dedicated 'shellAliases' option.
         shellAliases = {
+            wake-trinity = "wakeonlan a0:b3:cc:fb:44:7b";
             switch = "sudo nixos-rebuild switch";
 
             ll = "ls -l";
