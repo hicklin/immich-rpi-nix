@@ -111,12 +111,10 @@ This will generate
 
 #### Immich app
 
-1. Transfer the generated `.p12` file to your phone.
+1. Transfer the generated `.p12` file to your phone and install it in the OS system certificate store.
 2. Sign-out of the app.
 3. Enter the new https tailscale URL. DO NOT tap on login.
-4. Add your mTLS cert in setting (gear icon) > Advanced:
-   1. Toggle "Allow self-signed SSL certificates".
-   2. Import the certificate it SSL client certificate.
+4. Import your mTLS cert in setting (gear icon) > Advanced > SSL client certificate.
 
 #### Browser
 

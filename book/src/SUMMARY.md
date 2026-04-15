@@ -13,6 +13,7 @@
   - [Migrating Photos](./management/1-migrating-photos.md)
   - [On Boot](./management/2-on-boot.md)
   - [Maintenance](./management/3-maintenance.md)
+  - [Certificate Rotation](./management/4-certificate-rotation.md)
 - [Disaster Recovery](./disaster-recovery.md)
 - [Alternative Setup Procedures](./alternative-setups/0-alternative-setups.md)
   - [Migration Processing Off RPi](./alternative-setups/1-migration-processing-off-rpi.md)
