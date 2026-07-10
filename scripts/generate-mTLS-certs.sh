@@ -1,7 +1,8 @@
 set -e
 
 CLIENT_NAME=""
-CA_PATH="/var/lib/certs"
+CA_CERT_PATH="/var/lib/certs"
+CA_KEY_PATH="/mnt/immich_drive/secrets"
 CA_CRT="ca-cert.pem"
 CA_KEY="ca-key.pem"
 
@@ -17,14 +18,15 @@ Usage: $0 [OPTIONS]
 
 Options:
     --client-name NAME     The name of the client. This is used to name the client cert files.
-    --ca-path              Set the path to the CA cert. DEFAULT: current working directory.
+    --ca-cert-path PATH    Path to the CA certificate. DEFAULT: /var/lib/certs.
+    --ca-key-path PATH     Path to the CA private key. DEFAULT: /mnt/immich_drive/secrets.
     --ca-crt               Set the CA certificate filename. DEFAULT: "ca-cert.pem".
     --ca-key               Set the CA key filename. DEFAULT: "ca-key.pem".
     --help                 Show this help message
 
 Examples:
     $0 --client-name my-pc
-    $0 --client-name my-phone --ca-path /var/lib/immich
+    $0 --client-name my-phone --ca-key-path /mnt/immich_drive/secrets
 
 EOF
     exit 0
@@ -41,12 +43,20 @@ while [ $# -gt 0 ]; do
             CLIENT_NAME="$2"
             shift 2
             ;;
-        --ca-path)
+        --ca-cert-path)
             if [ -z "$2" ] || [ "${2#--}" != "$2" ]; then
-                printf "%sError: --ca-path requires the path to the CA certs%s\n" "$RED" "$NC" >&2
+                printf "%sError: --ca-cert-path requires the path to the CA certificate%s\n" "$RED" "$NC" >&2
                 exit 1
             fi
-            CA_PATH="$2"
+            CA_CERT_PATH="$2"
+            shift 2
+            ;;
+        --ca-key-path)
+            if [ -z "$2" ] || [ "${2#--}" != "$2" ]; then
+                printf "%sError: --ca-key-path requires the path to the CA private key%s\n" "$RED" "$NC" >&2
+                exit 1
+            fi
+            CA_KEY_PATH="$2"
             shift 2
             ;;
         --ca-crt)
@@ -87,8 +97,8 @@ extendedKeyUsage = clientAuth
 EOF
 
 
-CA_CRT="$CA_PATH/$CA_CRT"
-CA_KEY="$CA_PATH/$CA_KEY"
+CA_CRT="$CA_CERT_PATH/$CA_CRT"
+CA_KEY="$CA_KEY_PATH/$CA_KEY"
 
 echo "Generating client certificates with"
 echo "CA crt: $CA_CRT"

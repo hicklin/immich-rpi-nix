@@ -27,9 +27,10 @@ To enable these features securely, we will hide immich behind caddy, a reverse p
 
 ### 1. Initial prep
 
-1. Export the certificate directory for use with the following commands.
+1. Export the certificate and secrets directories for use with the following commands.
    ```bash
    export CERT_DIR="/var/lib/certs"
+   export SECRETS_DIR="/mnt/immich_drive/secrets"
    ```
 2. Create the certificates directory:
    ```bash
@@ -53,20 +54,20 @@ A server certificate allows secure HTTPS communication. We will use Let's Encryp
 
 Create a certificate authority on the immich server that will generate mTLS certificates for trusted devices.
 
-1. Generate a private CA key:
+1. Generate a private CA key on the encrypted drive:
    ```bash
-   openssl genrsa -out $CERT_DIR/ca-key.pem 4096
+   openssl genrsa -out $SECRETS_DIR/ca-key.pem 4096
    ```
 2. Generate a self-signed CA certificate:
    ```bash
    openssl req -new -x509 -days 365 \
-     -key $CERT_DIR/ca-key.pem \
+     -key $SECRETS_DIR/ca-key.pem \
      -out $CERT_DIR/ca-cert.pem \
      -subj "/CN=Immich Client CA/O=Personal/C=US"
    ```
 
 > [!NOTE]
-> The CA private key (`ca-key.pem`) is stored on the server. If the server is ever compromised, an attacker could use it to issue themselves a trusted client certificate. For a home setup this is an acceptable trade-off — recovery is straightforward: generate a new CA, update the server config, and re-issue certs to your personal devices.
+> The CA public certificate (`ca-cert.pem`) lives in `/var/lib/certs` so Caddy can read it at startup. The CA private key (`ca-key.pem`) is stored on the encrypted drive (`/mnt/immich_drive/secrets`), so a stolen SD card cannot be used to mint new trusted client certificates.
 
 ### 4. Enable nix configuration
 

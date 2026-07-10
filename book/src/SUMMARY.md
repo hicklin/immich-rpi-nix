@@ -24,4 +24,5 @@
   - [Harden RPi with SSH keys](./optional-extras/1-harden-rpi-with-ssh-keys.md)
   - [Expose Immich to the internet](./optional-extras/2-expose-immich.md)
 - [Known Issues](./known-issues.md)
+- [Changelog](./changelog.md)
 - [Support](./support.md)
