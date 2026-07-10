@@ -20,7 +20,7 @@ in {
 
     services.caddy = {
         enable = true;
-        # This config requires connections from tailscale IPs to provide a proxy protocol header. 
+        # This config requires connections from tailscale IPs to provide a proxy protocol header.
         # This allows caddy to see the original IP of connection coming through the tailscale funnel.
         # This is required for IP banning to work.
         globalConfig = ''
@@ -58,32 +58,32 @@ in {
 
     # Immich only listens on localhost
     services.immich.host = "127.0.0.1";
-    
+
     # Firewall - only allow Tailscale
     networking.firewall = {
         enable = true;
         allowedUDPPorts = [ config.services.tailscale.port ];
-        
+
         # Allow local network access to Caddy
         interfaces.end0.allowedTCPPorts = [ 8443 ];  # LAN interface
         # Use below if enabling PRIVATE ENDPOINT
         # interfaces.tailscale0.allowedTCPPorts = [ 8444 ];
         # interfaces.end0.allowedTCPPorts = [ 8444 8443 ];  # LAN interface
     };
-    
+
     # Tailscale configuration
     services.tailscale.useRoutingFeatures = "server";
-    
+
     # ensure the banlist file exists
     systemd.tmpfiles.rules = [
-        "f /var/lib/caddy/banlist 0644 root root - -"
+        "f /var/lib/caddy/banlist 0640 caddy caddy - -"
     ];
 
     # allow fail2ban to write to the caddy directory
     systemd.services.fail2ban.serviceConfig = {
         ReadWritePaths = [ "/var/lib/caddy" ];
     };
-    
+
     # fail2ban action: Add banned IP to caddy ban list and reload caddy
     environment.etc."fail2ban/action.d/caddy-ban.conf".text = ''
         [Definition]
@@ -127,10 +127,10 @@ in {
                 action = "caddy-ban";
                 logpath = "/var/log/caddy/access-:8443.log";
                 backend = "polling";
-                maxretry = 20;
+                maxretry = 5;
                 findtime = 300;
                 bantime = 43200;
-            };            
+            };
             # Jail 2: Forbidden access
             forbidden.settings = {
                 enabled = true;
@@ -138,10 +138,10 @@ in {
                 action = "caddy-ban";
                 logpath = "/var/log/caddy/access-:8443.log";
                 backend = "polling";
-                maxretry = 20;
+                maxretry = 5;
                 findtime = 300;
                 bantime = 43200;
-            };            
+            };
             # Jail 3: Not Found
             not-found.settings = {
                 enabled = true;
@@ -149,10 +149,10 @@ in {
                 action = "caddy-ban";
                 logpath = "/var/log/caddy/access-:8443.log";
                 backend = "polling";
-                maxretry = 20;
+                maxretry = 5;
                 findtime = 300;
                 bantime = 43200;
-            };            
+            };
         };
     };
 

@@ -58,12 +58,15 @@ Create a certificate authority on the immich server that will generate mTLS cert
    openssl genrsa -out $CERT_DIR/ca-key.pem 4096
    ```
 2. Generate a self-signed CA certificate:
-   ``` bash
-   openssl req -new -x509 -days 3650 \
+   ```bash
+   openssl req -new -x509 -days 365 \
      -key $CERT_DIR/ca-key.pem \
      -out $CERT_DIR/ca-cert.pem \
      -subj "/CN=Immich Client CA/O=Personal/C=US"
    ```
+
+> [!NOTE]
+> The CA private key (`ca-key.pem`) is stored on the server. If the server is ever compromised, an attacker could use it to issue themselves a trusted client certificate. For a home setup this is an acceptable trade-off — recovery is straightforward: generate a new CA, update the server config, and re-issue certs to your personal devices.
 
 ### 4. Enable nix configuration
 

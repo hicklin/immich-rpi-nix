@@ -26,7 +26,7 @@ tls /var/lib/certs/cert.pem /var/lib/certs/key.pem {
 }
 
 # With cert = full access
-# @authenticated expression {http.request.tls.client.issuer} == "CN=MyCA,O=MyOrg,C=US"   
+# @authenticated expression {http.request.tls.client.issuer} == "CN=Immich Client,O=Personal,C=US"
 @authenticated { expression {http.request.tls.client.issuer} != null }
 handle @authenticated {
 	reverse_proxy localhost:2283
