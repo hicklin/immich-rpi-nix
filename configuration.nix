@@ -53,6 +53,8 @@ in {
 
   nix.settings.experimental-features = [ "nix-command" ];
 
+  time.timeZone = "Europe/London";
+
   networking = {
     hostName = hostname;
     firewall.enable = true;
